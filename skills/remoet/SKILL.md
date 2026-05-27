@@ -1,7 +1,7 @@
 ---
 name: remoet
-description: Curated job search through your agent. Star companies you would actually work for, let the agent pull jobs from your shortlist, manage your profile by talking. Backed by company-level tech stack data nobody else has.
-version: 1.1.0
+description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull remote developer jobs from your shortlist, all by talking. Backed by company-level tech stack data nobody else has.
+version: 1.1.1
 author: Remoet
 license: MIT
 platforms: [macos, linux, windows]
@@ -9,8 +9,9 @@ required_environment_variables:
   - name: REMOET_API_KEY
     prompt: "Paste your Remoet API key (free, auto-generated at https://remoet.dev/onboarding?utm_source=hermes)"
 metadata:
+  tags: [Job-Search, Career, Tech-Jobs, Remote-Work, Jobs, Productivity]
   hermes:
-    tags: [Productivity, Job Search]
+    tags: [Job-Search, Career, Tech-Jobs, Remote-Work, Jobs, Productivity]
     homepage: https://remoet.dev
   openclaw:
     emoji: 🦄
