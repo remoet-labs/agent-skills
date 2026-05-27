@@ -3,7 +3,7 @@ name: remoet
 description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull remote developer jobs from your shortlist, all by talking. Backed by company-level tech stack data nobody else has.
 version: 1.1.1
 author: Remoet
-license: MIT
+license: MIT-0
 platforms: [macos, linux, windows]
 required_environment_variables:
   - name: REMOET_API_KEY
