@@ -1,7 +1,7 @@
 ---
 name: remoet
 description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull remote developer jobs from your shortlist, all by talking. Backed by company-level tech stack data nobody else has.
-version: 1.1.1
+version: 1.2.0
 author: Remoet
 license: MIT-0
 platforms: [macos, linux, windows]
@@ -150,7 +150,7 @@ The platform has its own opinions. They matter, because they change how the agen
 
 **Tech stack matching.** `search_listings` accepts a `techStack` array. The platform auto-normalizes (e.g. "ts" → "TypeScript", "k8s" → "Kubernetes"). Sort by stars (popularity), job count (activity), or name.
 
-**Visibility.** Controls whether partner companies on the platform can see the user as a candidate. `STARRED` mode is the recommended setting, a two-way match where companies the user follows can also discover the user. `NONE` is the default.
+**Visibility.** Controls whether partner companies on the platform can see the user as a candidate. Set it with `update_profile` (optional `visibility` field). `STARRED` mode is the recommended setting, a two-way match where companies the user follows can also discover the user. `NONE` is the default.
 
 **Applications.** Most jobs on Remoet are scraped from external careers pages. For those, `apply_to_job` does NOT work, the user applies on the company's site. Only internal jobs (the small slice of listings from companies that post directly through Remoet's partner system) support end-to-end internal applications. Check `applicationType` on a job before calling `apply_to_job`.
 
@@ -176,7 +176,7 @@ The killer demo. The user pastes or uploads a CV, the agent does the rest in one
 Agent flow:
 
 1. Parse the CV: extract skills, work history, projects, education
-2. `update_profile`, `create_work_experience`, `create_project`, `create_education`: populate Remoet
+2. `update_profile`, `save_work_experience`, `save_project`, `save_education`: populate Remoet
 3. `search_listings` with the extracted tech stack: get candidates
 4. Filter candidates by real stack overlap (not just one shared technology)
 5. Present the top 15 to 20 to the user for star confirmation
@@ -187,38 +187,25 @@ A new user goes from cold start to a curated, daily-running job feed in one conv
 
 ## Available Tools
 
-### Profile (read)
+Twenty-eight tools, grouped below. Reads that used to be separate calls now fold into one: `get_profile` returns the whole profile, `get_account` returns all plan and budget status, and the list tools (`get_applications`, `get_digests`, `get_linktrees`) return one item in full when you pass its id or slug.
+
+### Profile
 
 | Tool | Purpose |
 |------|---------|
-| `get_profile` | Full profile: personal info, jobs, projects, education, link trees. **Always call first.** |
-| `get_work_experience` | Work history entries |
-| `get_projects` | Portfolio projects |
-| `get_education` | Education history |
-| `get_links` | Social and professional links (GitHub, LinkedIn, etc.) |
-
-### Profile (write)
-
-| Tool | Purpose |
-|------|---------|
-| `update_profile` | Update profile fields. Only pass fields you want to change. Pass `null` to clear. |
-| `create_work_experience` | Add a job to work history |
-| `update_work_experience` | Edit an existing work experience by ID |
-| `delete_work_experience` | Remove a work experience by ID |
-| `create_project` | Add a portfolio project |
-| `update_project` | Edit a project by ID |
-| `delete_project` | Remove a project by ID |
-| `create_education` | Add an education entry |
-| `update_education` | Edit an education entry by ID |
-| `delete_education` | Remove an education entry by ID |
+| `get_profile` | Full profile in one call: personal info, work experience, projects, education (each entry with an `id` for editing), plus the current visibility setting. **Always call first.** |
+| `update_profile` | Update profile fields and/or visibility. Only pass fields you want to change; pass `null` to clear. `visibility` accepts `NONE`, `STARRED`, `ALL`. |
+| `save_work_experience` | Add or update a work experience entry (upsert: omit `id` to create, pass an `id` from `get_profile` to update) |
+| `save_project` | Add or update a portfolio project (upsert) |
+| `save_education` | Add or update an education entry (upsert) |
+| `delete_profile_item` | Delete a work experience, project, or education entry (`type` + `id`). Confirm with the user first. |
 
 ### Discovery
 
 | Tool | Purpose |
 |------|---------|
-| `search_listings` | Search companies. Accepts `searchQuery`, `techStack[]`, `sortBy`, pagination. Auto-normalizes tech names. |
+| `search_listings` | Search companies (`searchQuery`, `techStack[]`, `sortBy`, pagination), or list the user's starred shortlist with `starred: true`. Auto-normalizes tech names. |
 | `get_listing` | Detailed info on a single company by slug |
-| `get_starred_listings` | All companies the user has starred (their shortlist) |
 
 ### Stars
 
@@ -228,7 +215,8 @@ Stars are the moat. Only star companies whose stack overlaps with the user's pro
 |------|---------|
 | `star_listing` | Star a company. Free of budget cost, capped at plan's `maxActiveStars`. |
 | `unstar_listing` | Remove a star. Consumes 1 unstar budget slot. |
-| `get_star_count` | Star and budget status: current count, slots remaining, unstar budget, reset date, plan |
+
+Star and budget status live in `get_account`.
 
 ### Job feed
 
@@ -240,19 +228,11 @@ Stars are the moat. Only star companies whose stack overlaps with the user's pro
 | `get_saved_jobs` | List saved jobs |
 | `update_saved_job_note` | Update the note on a saved job |
 
-### Visibility
-
-| Tool | Purpose |
-|------|---------|
-| `get_visibility` | Current visibility setting |
-| `update_visibility` | Set visibility. Values: `NONE` (default, hidden), `STARRED` (recommended, two-way match), `ALL` |
-
 ### Digests
 
 | Tool | Purpose |
 |------|---------|
-| `get_digests` | Weekly job-summary digests from starred companies |
-| `get_digest` | A specific digest by ID, returns markdown-formatted jobs |
+| `get_digests` | Weekly job-summary digests from starred companies. Pass an `id` to get that digest's full markdown body. |
 
 ### Apps
 
@@ -264,8 +244,7 @@ Stars are the moat. Only star companies whose stack overlaps with the user's pro
 
 | Tool | Purpose |
 |------|---------|
-| `get_linktrees` | All of the user's link tree pages |
-| `get_linktree` | A specific link tree by slug |
+| `get_linktrees` | The user's link tree pages. Pass a `slug` to get that page plus its view/click analytics. |
 | `create_linktree` | Create a shareable page. Tracks views and link clicks. |
 | `delete_linktree` | Delete a link tree by ID |
 
@@ -276,22 +255,17 @@ Stars are the moat. Only star companies whose stack overlaps with the user's pro
 | Tool | Purpose |
 |------|---------|
 | `apply_to_job` | Apply to an internal job. Confirm with the user first. |
-| `get_applications` | List the user's applications. Filter by status, paginated. |
-| `get_application` | Application detail by ID |
+| `get_applications` | List the user's applications (filter by status, paginated), or pass an `applicationId` to get one application in full: details, event timeline, and message thread. |
 | `withdraw_application` | Withdraw an application. Confirm first. |
-| `accept_offer` | Accept an offer (status must be `offer_extended`). Confirm first. |
-| `reject_offer` | Reject an offer. Confirm first. |
+| `respond_to_offer` | Accept or reject an offer (`decision` accept or reject; status must be `offer_extended`). Irreversible, confirm first. |
 | `add_application_note` | Private note on an application (user-only, max 1000 chars) |
-| `get_application_events` | Application timeline: status changes, notes, messages |
 | `send_application_message` | Message the company on an application. Let user review first. Max 1000 chars. |
-| `get_application_messages` | Message thread for an application, paginated |
 
-### Subscription
+### Account & Subscription
 
 | Tool | Purpose |
 |------|---------|
-| `get_subscription` | Current plan, limits, today's usage (MCP + API request counts) |
-| `get_usage` | Today's request counts in isolation |
+| `get_account` | One status read: plan, every budget (active stars, unstars this period, MCP and API requests today, each with a reset time), remaining plan limits, and any over-cap state |
 | `get_upgrade_link` | Get a Stripe Checkout URL to upgrade to Pro or Max. The user completes payment in a browser. |
 
 ## Subscription Plans
@@ -322,7 +296,7 @@ Starring is **free** of budget cost. Unstarring consumes one budget slot. This p
 
 ## Tips for the Agent
 
-- **First-session onboarding from a CV.** Have the user paste or upload a CV, then run `update_profile`, `create_work_experience`, `create_project`, `create_education` to populate everything in one conversation.
+- **First-session onboarding from a CV.** Have the user paste or upload a CV, then run `update_profile`, `save_work_experience`, `save_project`, `save_education` to populate everything in one conversation.
 - **Be selective with stars.** Suggesting "star these 50 companies" defeats the purpose. The user should end up with 5 to 30 stars they would seriously work for. Quality over quantity.
 - **Use `STARRED` visibility for two-way matching.** Companies the user has starred can see the user back. The user stays hidden from everyone else.
 - **Link tree on the user's CV.** Create a link tree, add it to their CV. Remoet tracks views and clicks so they know when a recruiter has looked.
