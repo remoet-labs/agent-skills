@@ -1,13 +1,13 @@
 ---
 name: remoet
-description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull remote developer jobs from your shortlist, all by talking. Backed by company-level tech stack data nobody else has.
-version: 1.2.0
+description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull developer jobs from your shortlist, all by talking. Backed by company-level tech stack data nobody else has.
+version: 1.2.1
 author: Remoet
 license: MIT-0
 platforms: [macos, linux, windows]
 required_environment_variables:
   - name: REMOET_API_KEY
-    prompt: "Paste your Remoet API key (free, auto-generated at https://remoet.dev/onboarding?utm_source=hermes)"
+    prompt: "Paste your Remoet API key (free, auto-generated at https://remoet.dev/onboarding?mode=agent&utm_source=hermes)"
 metadata:
   tags: [Job-Search, Career, Tech-Jobs, Remote-Work, Jobs, Productivity]
   hermes:
@@ -20,7 +20,7 @@ metadata:
     envVars:
       - name: REMOET_API_KEY
         required: true
-        description: Get yours at https://remoet.dev/onboarding?utm_source=clawhub (auto-generated on first visit). Free tier needs no credit card.
+        description: Get yours at https://remoet.dev/onboarding?mode=agent&utm_source=clawhub (auto-generated on first visit). Free tier needs no credit card.
     requires:
       env:
         - REMOET_API_KEY
@@ -32,7 +32,7 @@ Ask your agent "which companies run Rails on top of React with Postgres" and get
 
 The agent then runs the discovery loop through conversation. Star the companies that fit, pull jobs from your starred shortlist, save the good ones with notes, manage your profile by talking. Curated input, focused output.
 
-**Try this prompt the first time you install:** "I'm a Rails plus React plus Postgres dev, remote-friendly companies under 200 people. Find my shortlist."
+**Try this prompt the first time you install:** "I'm a Rails plus React plus Postgres dev. Find me companies under 200 people that actually fit my stack."
 
 ## When to Use This Skill
 
@@ -42,11 +42,11 @@ Use this skill when the user wants to:
 - See jobs scoped to companies the user has already vetted, not the whole internet
 - Update their developer profile, work history, projects, and education through conversation
 - Track job applications, add private notes, message companies
-- Also: weekly digests of new roles from starred companies, a shareable developer link tree, internal applications for partner companies
+- Also: a personal feed of what landed at starred companies (plus one job-of-the-day pick), a shareable developer link tree, internal applications for partner companies
 
 Skip this if the user wants every job from every board. Remoet is the opposite of that.
 
-The free tier is the whole product (with caps). 10 stars, 30 MCP requests per day, jobs delayed by one week. Plenty for picking your shortlist and getting a feel. Paid tiers ($15 Pro, $29 Max) unlock real-time job data, higher caps, more headroom.
+The free tier is the whole product (with caps). 10 stars, real-time job data, request limits generous enough that you will not notice them. Plenty for picking your shortlist and getting a feel. Paid tiers ($15 Pro, $29 Max) unlock higher star caps and more headroom.
 
 ## Setup
 
@@ -54,7 +54,7 @@ Remoet is a remote MCP server. This skill teaches the agent to use it; you wire 
 
 ### 1. Get an API key (all harnesses)
 
-Sign in or sign up at [remoet.dev/onboarding](https://remoet.dev/onboarding). A free-tier API key is generated automatically on your first visit. Copy it from the onboarding page. Keys look like a 32-character hex string. No credit card needed for the free tier.
+Sign in or sign up at [remoet.dev/onboarding?mode=agent&utm_source=hermes](https://remoet.dev/onboarding?mode=agent&utm_source=hermes) (the agent door of the onboarding flow). A free-tier API key is generated automatically and shown in the manual setup section of that page. Copy it; keys look like a 32-character hex string. You can manage keys later at [remoet.dev/agents](https://remoet.dev/agents). No credit card needed for the free tier.
 
 Then set it as an environment variable:
 
@@ -146,7 +146,7 @@ The platform has its own opinions. They matter, because they change how the agen
 
 **Stars.** A user starring a company means they would seriously consider working there. Stars are the platform's noise filter. The agent should only suggest starring companies whose tech stack actually overlaps with the user's profile skills. Starring is free of budget cost but capped per plan. Unstarring consumes a budget slot to prevent unlimited cycling.
 
-**Job feed.** Scoped to starred companies. `get_starred_jobs` is the daily-driver tool. The user does not get a global feed of every job on the platform. That is intentional, the point of stars is curation.
+**Job feed.** Scoped to starred companies. Two tools cover it: `get_feed` is the notification layer (a chronological stream of what landed at starred companies, plus one job-of-the-day pick and the occasional platform post), `get_starred_jobs` is the query layer (filter and search across the shortlist's jobs). The user does not get a global feed of every job on the platform. That is intentional, the point of stars is curation.
 
 **Tech stack matching.** `search_listings` accepts a `techStack` array. The platform auto-normalizes (e.g. "ts" → "TypeScript", "k8s" → "Kubernetes"). Sort by stars (popularity), job count (activity), or name.
 
@@ -161,11 +161,12 @@ The platform has its own opinions. They matter, because they change how the agen
 The shape of a typical session:
 
 1. `get_profile`: confirm the user's stack and shortlist
-2. `search_listings`: find companies matching their stack (if shortlist is incomplete)
-3. `star_listing`: add the right matches to the shortlist (only ones with real stack overlap)
-4. `get_starred_jobs`: pull jobs from the shortlist with the user's filters (salary, location, remote, level)
-5. `save_job`: save the standouts with notes for later
-6. `apply_to_job`: only for internal jobs, confirm with the user first
+2. `get_feed`: check what landed at the shortlist since last session (and the job-of-the-day pick)
+3. `search_listings`: find companies matching their stack (if shortlist is incomplete)
+4. `star_listing`: add the right matches to the shortlist (only ones with real stack overlap)
+5. `get_starred_jobs`: pull jobs from the shortlist with the user's filters (salary, location, remote, level)
+6. `save_job`: save the standouts with notes for later
+7. `apply_to_job`: only for internal jobs, confirm with the user first
 
 ## First-Session Onboarding from a CV
 
@@ -187,7 +188,7 @@ A new user goes from cold start to a curated, daily-running job feed in one conv
 
 ## Available Tools
 
-Twenty-eight tools, grouped below. Reads that used to be separate calls now fold into one: `get_profile` returns the whole profile, `get_account` returns all plan and budget status, and the list tools (`get_applications`, `get_digests`, `get_linktrees`) return one item in full when you pass its id or slug.
+Twenty-nine tools, grouped below. Reads that used to be separate calls now fold into one: `get_profile` returns the whole profile, `get_account` returns all plan and budget status, and the list tools (`get_applications`, `get_digests`, `get_linktrees`) return one item in full when you pass its id or slug.
 
 ### Profile
 
@@ -222,7 +223,8 @@ Star and budget status live in `get_account`.
 
 | Tool | Purpose |
 |------|---------|
-| `get_starred_jobs` | Jobs from starred companies. The main daily-driver tool. Filters: `searchQuery`, `locationQuery`, `techStack[]`, `remotePolicy[]`, `experienceLevel[]`, `salaryMin`, `sortBy`, `sortOrder`. |
+| `get_feed` | The user's feed as one chronological stream, newest first: job items from starred companies, one job-of-the-day pick, and occasional platform posts. Poll on the user's schedule to act as their notification layer; page deeper with `nextCursor`. |
+| `get_starred_jobs` | Jobs from starred companies. The main query tool. Filters: `searchQuery`, `locationQuery`, `techStack[]`, `remotePolicy[]`, `experienceLevel[]`, `salaryMin`, `sortBy`, `sortOrder`. |
 | `save_job` | Save a job for later with optional note |
 | `unsave_job` | Remove a saved job |
 | `get_saved_jobs` | List saved jobs |
@@ -232,7 +234,7 @@ Star and budget status live in `get_account`.
 
 | Tool | Purpose |
 |------|---------|
-| `get_digests` | Weekly job-summary digests from starred companies. Pass an `id` to get that digest's full markdown body. |
+| `get_digests` | Historical weekly digest snapshots. Pass an `id` to get that digest's full markdown body. The digest pipeline has been replaced by the feed, so new accounts have none; prefer `get_feed` and `get_starred_jobs`. |
 
 ### Apps
 
@@ -274,12 +276,13 @@ Star and budget status live in `get_account`.
 |-------|------|-------------|--------------|
 | Max active stars | 10 | 30 | 75 |
 | Unstar budget / 30 days | 5 | 15 | Unlimited |
-| MCP requests / day | 30 | 150 | Unlimited |
+| MCP requests / day | 1,000 | Unlimited | Unlimited |
 | API requests / day | 300 | 5,000 | Unlimited |
-| Job data freshness | 1 week delay | Real-time | Real-time |
 | Link trees | 1 | 10 | Unlimited |
 
-**Always free across all tiers:** Profile management, applications, saved jobs, digests, web UI access. Web UI use does not count against the MCP request quota.
+Job data is real-time on every tier. The free-tier MCP limit is an abuse backstop, not a product gate; a normal agent session never gets near it. The real limit is stars: a star is what unlocks a company's full tech stack and live job feed.
+
+**Always free across all tiers:** Profile management, applications, saved jobs, the feed, web UI access. Web UI use does not count against the MCP request quota.
 
 ## What Does Not Work Yet
 
@@ -288,7 +291,7 @@ Be honest with the user about these so they do not hit a wall.
 - **External job applications happen on the company's site.** Most jobs on the platform are scraped from external career pages. The agent finds the job, you apply on the company site like always. Internal applications (end-to-end through Remoet) only work on the small slice of jobs from companies posting directly via the partner system.
 - **No GitHub integration.** The user's tech stack is what is in their Remoet profile, not what is actually in their repos. If the profile is empty, tech-stack matching has nothing to match against. Suggest populating the profile first.
 - **No cover-letter writing tool yet.** The plumbing is partially built, but it is not exposed via MCP.
-- **Job feed is scoped to starred companies, not the global catalogue.** Filters like salary range or remote policy only apply to the user's shortlist. To widen the net, the user needs to star more companies. Stars are a feature, not a limitation.
+- **Job feed is scoped to starred companies, not the global catalogue.** Filters like salary range or remote policy only apply to the user's shortlist (plus one job-of-the-day pick from outside it). To widen the net, the user needs to star more companies. Stars are a feature, not a limitation.
 
 ## Star Budget
 
