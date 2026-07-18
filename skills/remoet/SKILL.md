@@ -1,7 +1,7 @@
 ---
 name: remoet
-description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull developer jobs from your shortlist, all by talking. Backed by company-level tech stack data nobody else has.
-version: 1.2.1
+description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull developer jobs from your shortlist, all by talking. Backed by company-level tech stack data derived from the roles each company is hiring for now.
+version: 1.2.2
 author: Remoet
 license: MIT-0
 platforms: [macos, linux, windows]
@@ -152,7 +152,7 @@ The platform has its own opinions. They matter, because they change how the agen
 
 **Visibility.** Controls whether partner companies on the platform can see the user as a candidate. Set it with `update_profile` (optional `visibility` field). `STARRED` mode is the recommended setting, a two-way match where companies the user follows can also discover the user. `NONE` is the default.
 
-**Applications.** Most jobs on Remoet are scraped from external careers pages. For those, `apply_to_job` does NOT work, the user applies on the company's site. Only internal jobs (the small slice of listings from companies that post directly through Remoet's partner system) support end-to-end internal applications. Check `applicationType` on a job before calling `apply_to_job`.
+**Applications.** Most jobs on Remoet are scraped from external careers pages. `apply_to_job` handles both kinds and tells you which you got: internal jobs (the small slice from companies posting directly through Remoet's partner system) are applied to end-to-end and return the created application; scraped jobs return `applicationType: "external"` plus the `applicationUrl`. Hand that link to the user, they apply on the company's site. Remoet cannot submit external applications for them.
 
 **Link trees.** A developer-flavored shareable profile page. The user can put it on their CV, track views and clicks. One on Free, ten on Pro, unlimited on Max.
 
@@ -166,7 +166,7 @@ The shape of a typical session:
 4. `star_listing`: add the right matches to the shortlist (only ones with real stack overlap)
 5. `get_starred_jobs`: pull jobs from the shortlist with the user's filters (salary, location, remote, level)
 6. `save_job`: save the standouts with notes for later
-7. `apply_to_job`: only for internal jobs, confirm with the user first
+7. `apply_to_job`: internal jobs apply end-to-end (confirm with the user first), external jobs return the link to hand over
 
 ## First-Session Onboarding from a CV
 
@@ -252,11 +252,11 @@ Star and budget status live in `get_account`.
 
 ### Applications
 
-`apply_to_job` only works on internal jobs (`applicationType: "internal"`). For external jobs, the agent hands the user the URL and they apply on the company's site.
+`apply_to_job` covers both job types. Internal jobs (`applicationType: "internal"`) are applied to end-to-end. External jobs return the URL for the agent to hand over, and the user applies on the company's site.
 
 | Tool | Purpose |
 |------|---------|
-| `apply_to_job` | Apply to an internal job. Confirm with the user first. |
+| `apply_to_job` | Apply to an internal job, or get an external job's application link. Confirm with the user before submitting an internal application. |
 | `get_applications` | List the user's applications (filter by status, paginated), or pass an `applicationId` to get one application in full: details, event timeline, and message thread. |
 | `withdraw_application` | Withdraw an application. Confirm first. |
 | `respond_to_offer` | Accept or reject an offer (`decision` accept or reject; status must be `offer_extended`). Irreversible, confirm first. |
@@ -288,7 +288,7 @@ Job data is real-time on every tier. The free-tier MCP limit is an abuse backsto
 
 Be honest with the user about these so they do not hit a wall.
 
-- **External job applications happen on the company's site.** Most jobs on the platform are scraped from external career pages. The agent finds the job, you apply on the company site like always. Internal applications (end-to-end through Remoet) only work on the small slice of jobs from companies posting directly via the partner system.
+- **External job applications happen on the company's site.** Most jobs on the platform are scraped from external career pages. The agent finds the job and hands you the application link, you apply on the company site like always. Internal applications (end-to-end through Remoet) only work on the small slice of jobs from companies posting directly via the partner system.
 - **No GitHub integration.** The user's tech stack is what is in their Remoet profile, not what is actually in their repos. If the profile is empty, tech-stack matching has nothing to match against. Suggest populating the profile first.
 - **No cover-letter writing tool yet.** The plumbing is partially built, but it is not exposed via MCP.
 - **Job feed is scoped to starred companies, not the global catalogue.** Filters like salary range or remote policy only apply to the user's shortlist (plus one job-of-the-day pick from outside it). To widen the net, the user needs to star more companies. Stars are a feature, not a limitation.
