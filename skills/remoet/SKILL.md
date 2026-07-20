@@ -1,7 +1,7 @@
 ---
 name: remoet
 description: Job search and career discovery through your agent. Find tech companies that match your stack, star the ones you'd actually work for, and pull developer jobs from your shortlist, all by talking. Backed by company-level tech stack data derived from the roles each company is hiring for now.
-version: 1.2.2
+version: 1.3.0
 author: Remoet
 license: MIT-0
 platforms: [macos, linux, windows]
@@ -188,7 +188,7 @@ A new user goes from cold start to a curated, daily-running job feed in one conv
 
 ## Available Tools
 
-Twenty-nine tools, grouped below. Reads that used to be separate calls now fold into one: `get_profile` returns the whole profile, `get_account` returns all plan and budget status, and the list tools (`get_applications`, `get_digests`, `get_linktrees`) return one item in full when you pass its id or slug.
+Twenty-four tools, grouped below. Reads that used to be separate calls now fold into one: `get_profile` returns the whole profile, `get_account` returns all plan and budget status, and the list tools (`get_digests`, `get_linktrees`) return one item in full when you pass its id or slug.
 
 ### Profile
 
@@ -256,12 +256,7 @@ Star and budget status live in `get_account`.
 
 | Tool | Purpose |
 |------|---------|
-| `apply_to_job` | Apply to an internal job, or get an external job's application link. Confirm with the user before submitting an internal application. |
-| `get_applications` | List the user's applications (filter by status, paginated), or pass an `applicationId` to get one application in full: details, event timeline, and message thread. |
-| `withdraw_application` | Withdraw an application. Confirm first. |
-| `respond_to_offer` | Accept or reject an offer (`decision` accept or reject; status must be `offer_extended`). Irreversible, confirm first. |
-| `add_application_note` | Private note on an application (user-only, max 1000 chars) |
-| `send_application_message` | Message the company on an application. Let user review first. Max 1000 chars. |
+| `apply_to_job` | Apply to a job. Scraped jobs return the company's application URL; internal jobs are submitted directly. Confirm with the user first. |
 
 ### Account & Subscription
 
