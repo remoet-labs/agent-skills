@@ -26,7 +26,7 @@ hermes skills install remoet-labs/agent-skills/skills/remoet
 The same skill is published to ClawHub:
 
 ```bash
-openclaw skills install remoet
+openclaw skills install @remoet/remoet
 ```
 
 ### Other MCP-capable harnesses
