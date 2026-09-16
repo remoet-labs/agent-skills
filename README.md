@@ -2,7 +2,7 @@
 
 The canonical source for Remoet's [agentskills.io](https://agentskills.io) skills. One `SKILL.md` per skill, harness-agnostic, served to every agent harness from this one repo.
 
-Remoet is a curated job-search platform for AI agents. The skill teaches your agent to search companies by their real tech stack, star the ones you would actually work for, pull jobs from that shortlist, and manage your developer profile through conversation. It is backed by a remote MCP server at `https://api.remoet.dev/mcp`.
+Remoet is a tech job platform for AI agents. The whole job catalogue is public, so the skill teaches your agent to search the open board first, match companies by the tech stack they are actually hiring on, star the ones worth hearing from again so their new roles arrive on their own, and manage your developer profile through conversation. It is backed by a hosted MCP server at `https://api.remoet.dev/mcp`.
 
 ## Skills
 
@@ -26,7 +26,7 @@ hermes skills install remoet-labs/agent-skills/skills/remoet
 The same skill is published to ClawHub:
 
 ```bash
-openclaw skills install remoet
+openclaw skills install @remoet/remoet
 ```
 
 ### Other MCP-capable harnesses
