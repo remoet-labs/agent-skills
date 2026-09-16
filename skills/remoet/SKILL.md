@@ -32,7 +32,7 @@ Ask your agent "which companies run Rails on top of React with Postgres" and get
 
 The agent then runs the discovery loop through conversation. Search the open job board directly for immediate answers, star the companies that fit for an ongoing feed, save the good ones with notes, manage your profile by talking. Curated input, focused output.
 
-**Try this prompt the first time you install:** "I'm a Rails plus React plus Postgres dev. Find me companies under 200 people that actually fit my stack."
+**Try this prompt the first time you install:** "I'm a Rails plus React plus Postgres dev. Which companies are hiring on that stack right now, and what is open?"
 
 ## When to Use This Skill
 
@@ -208,7 +208,7 @@ Twenty-four tools, grouped below. Reads that used to be separate calls now fold 
 
 | Tool | Purpose |
 |------|---------|
-| `search_listings` | Search companies (`searchQuery`, `techStack[]`, `sortBy`, pagination), or list the user's starred shortlist with `starred: true`. Auto-normalizes tech names. |
+| `search_listings` | Search companies: `searchQuery` (name, description, about), `techStack[]` with `techStackMatch` ("any" default, or "all" for a must-have stack), `experienceLevel[]` (companies with at least one open role at that seniority, so ["junior"] finds the entry-level-friendly ones), `sortBy` (stars, jobCount or name) and pagination. Or list the user's starred shortlist with `starred: true`, which ignores searchQuery, experienceLevel, sort and pagination and takes techStack to return a matchedTechStack per company. Auto-normalizes tech names. |
 | `get_listing` | Detailed info on a single company by slug |
 
 ### Public jobs
@@ -217,7 +217,7 @@ The open catalogue, no star required. Covers roles scraped from cleared ATS plat
 
 | Tool | Purpose |
 |------|---------|
-| `search_jobs` | Search the whole public job catalogue at remoet.dev/jobs: every open role across every company on Remoet, no star needed and none consumed. Filters: `searchQuery` (title, summary and stack), `techStack[]` with `techStackMatch` ("any" default, or "all" to require every technology on the same role), `companySlug`, `location[]` (a country also matches its cities), `remotePolicy[]`, `experienceLevel[]`, `salaryMin` (excludes roles with no published salary), `sortBy` ("newest" default or "salary") and `sortOrder`. Use this first to answer "what is open" for a new user or a specific technology. Each result carries the public Remoet page (`/listings/<companySlug>/jobs/<titleSlug>`), the employer's own `applyUrl`, and `companySlug`. |
+| `search_jobs` | Search the whole public job catalogue at remoet.dev/jobs: every open role across every company on Remoet, no star needed and none consumed. Filters: `searchQuery` (title, summary and stack), `techStack[]` with `techStackMatch` ("any" default, or "all" to require every technology on the same role), `companySlug`, `location[]` (a country also matches its cities), `remotePolicy[]`, `experienceLevel[]`, `salaryMin` (excludes roles with no published salary), `sortBy` ("newest" default or "salary") and `sortOrder`. Two traps: commas inside `searchQuery` mean AND, so "react, typescript" requires both; and `techStackMatch: "all"` accepts at most 20 technologies, returning NO roles above that rather than quietly trimming. Use this first to answer "what is open" for a new user or a specific technology. Each result carries the public Remoet page (`/listings/<companySlug>/jobs/<titleSlug>`), the employer's own `applyUrl`, and `companySlug`. |
 
 ### Stars
 
@@ -235,7 +235,7 @@ Star and budget status live in `get_account`.
 | Tool | Purpose |
 |------|---------|
 | `get_feed` | The user's feed as one chronological stream, newest first: job items from starred companies, one job-of-the-day pick, and occasional platform posts. Poll on the user's schedule to act as their notification layer; page deeper with `nextCursor`. |
-| `get_starred_jobs` | Jobs from starred companies. The main query tool. Filters: `searchQuery`, `locationQuery`, `techStack[]`, `remotePolicy[]`, `experienceLevel[]`, `salaryMin`, `sortBy`, `sortOrder`. |
+| `get_starred_jobs` | Jobs from starred companies. The main query tool. Filters: `searchQuery`, `locationQuery`, `techStack[]` with `techStackMatch` ("any" default, or "all"), `remotePolicy[]`, `experienceLevel[]`, `salaryMin`, `sortBy`, `sortOrder`. |
 | `save_job` | Save a job for later with optional note |
 | `unsave_job` | Remove a saved job |
 | `get_saved_jobs` | List saved jobs |
