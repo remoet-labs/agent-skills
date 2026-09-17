@@ -45,19 +45,19 @@ Use this skill when the user wants to:
 
 Skip this if the user wants every job board on the internet. Remoet's catalogue covers roles scraped from cleared ATS platforms (Lever, Greenhouse, Ashby, Recruitee, Workable), not the whole internet.
 
-Remoet is free, the whole product, no plans to upgrade to. 50 active stars, real-time job data, request limits generous enough that you will not notice them. Plenty for picking your shortlist and getting a feel.
+Remoet is free, the whole product, no plans to upgrade to. 50 active stars, real-time job data, and with an account, request limits generous enough that you will not notice them. Plenty for picking your shortlist and getting a feel.
 
 ## Setup
 
 Remoet is a hosted MCP server. This skill teaches the agent to use it; you wire the server into your harness once with the steps below.
 
-**No key needed to start.** Connected with no credentials at all, the server answers `search_jobs` and `get_listing`, so the agent can search the public tech job board and read companies right away. Everything else (profile, stars, roles on file, the feed) needs a free account, which you can add later. Keyless calls run on tighter limits: at most 20 results a page, 10 pages deep, plus per-minute and per-day ceilings per client. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
+**No key needed to start.** Connected with no credentials at all, the server answers `search_jobs` and `get_listing`, so the agent can search the public tech job board and read companies right away. Everything else (profile, stars, roles on file, the feed) needs a free account, which you can add later. Keyless calls run on tighter limits: at most 20 results a page, 10 pages deep, per-minute and per-day ceilings per client, and a shared per-minute ceiling across all keyless callers, so a busy moment can return "retry in a few seconds". A free account lifts all of that. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
 
 ### 1. Get an API key (optional, for account tools)
 
 Sign in or sign up at [remoet.dev/onboarding?mode=agent&utm_source=hermes](https://remoet.dev/onboarding?mode=agent&utm_source=hermes) (the agent door of the onboarding flow). A free API key is generated automatically and shown in the manual setup section of that page. Copy it; keys look like a 32-character hex string. You can manage keys later at [remoet.dev/agents](https://remoet.dev/agents). No credit card needed.
 
-Then set it as an environment variable:
+Then make it available to your harness. How depends on the harness (Hermes keeps it in `~/.hermes/.env`, see below); for a plain shell:
 
 ```bash
 export REMOET_API_KEY=<paste_your_key_here>
@@ -65,24 +65,24 @@ export REMOET_API_KEY=<paste_your_key_here>
 
 ### 2. Wire up the MCP server
 
-Two transport URLs exist. They are not interchangeable:
+Two transport URLs exist. Both answer `search_jobs` and `get_listing` with no credential; they differ in how the account tools authenticate:
 
-- `https://api.remoet.dev/mcp` expects a Bearer API key header and never triggers OAuth. Best for headless / always-on agents.
-- `https://api.remoet.dev/mcp/oauth` advertises the OAuth challenge and ignores a static header. The harness negotiates discovery, dynamic client registration, PKCE, and refresh.
+- `https://api.remoet.dev/mcp` takes an optional Bearer API key header and never triggers OAuth. Without a key, account tools return an error message rather than a challenge. Best for headless / always-on agents.
+- `https://api.remoet.dev/mcp/oauth` returns a 401 OAuth challenge only when an account tool is called without credentials. The harness negotiates discovery, dynamic client registration, PKCE, and refresh.
 
 #### Hermes Agent
 
-Keyless, the fastest way to try it:
+One command covers both the keyless and the API-key path:
 
 ```bash
 hermes mcp add remoet --url https://api.remoet.dev/mcp
 ```
 
-Hermes connects, lists the tools and asks which to enable. Without a key, only `search_jobs` and `get_listing` will answer. `REMOET_API_KEY` is declared optional, so Hermes does not block the skill on it.
+Hermes first asks "Does this server require authentication?". Answer `n` to search keyless, or `y` and paste your API key, which Hermes saves to `~/.hermes/.env` as `MCP_REMOET_API_KEY` and wires into the Authorization header for you (the right choice for always-on agents, since a gateway service never sees a key exported in your shell). It then lists the tools and asks which to enable; keyless, choose `select` and keep `search_jobs` and `get_listing`, because the other tools only return an account error without a key. `REMOET_API_KEY` is declared optional in this skill, so Hermes does not block the skill on it.
 
-To add your account, use one of the paths below under `mcp_servers` in your Hermes config.
+If you edit `mcp_servers` by hand instead, put the key in `~/.hermes/.env`, not only in a shell export.
 
-API-key path (recommended for always-on agents):
+API-key path, by hand:
 
 ```yaml
 mcp_servers:
@@ -113,7 +113,7 @@ Reload without restarting, then verify:
 /reload-mcp
 ```
 ```bash
-hermes chat --toolsets skills -q "Use the remoet skill: call get_profile and tell me what's there."
+hermes chat --toolsets skills -q "Use the remoet skill: search for open Go roles and list three."
 ```
 
 #### OpenClaw
@@ -125,7 +125,14 @@ openclaw mcp set remoet '{"url":"https://api.remoet.dev/mcp","transport":"stream
 openclaw mcp list
 ```
 
-With an API key, add the Remoet MCP server to OpenClaw's config (typical path `~/.openclaw/config.json`):
+With an API key, for the account tools:
+
+```bash
+openclaw mcp set remoet '{"url":"https://api.remoet.dev/mcp","transport":"streamable-http","headers":{"Authorization":"Bearer ${REMOET_API_KEY}"}}'
+openclaw mcp list
+```
+
+The same thing in OpenClaw's config file (typical path `~/.openclaw/config.json`):
 
 ```json
 {
@@ -141,13 +148,6 @@ With an API key, add the Remoet MCP server to OpenClaw's config (typical path `~
     }
   }
 }
-```
-
-Or via the OpenClaw CLI, then verify:
-
-```bash
-openclaw mcp set remoet '{"url":"https://api.remoet.dev/mcp","transport":"streamable-http","headers":{"Authorization":"Bearer ${REMOET_API_KEY}"}}'
-openclaw mcp list
 ```
 
 #### Other harnesses (Claude Code, Cursor, Windsurf, VS Code)
@@ -176,7 +176,7 @@ The platform has its own opinions. They matter, because they change how the agen
 
 The shape of a typical session:
 
-1. `get_profile`: confirm the user's stack and shortlist
+1. `get_profile` (when an account is connected): confirm the user's stack and shortlist
 2. `get_feed`: check what landed at the shortlist since last session (and the job-of-the-day pick)
 3. `search_jobs`: check what is open right now across the whole public catalogue for the user's stack, works with zero stars
 4. `search_listings`: find companies matching their stack (if shortlist is incomplete)
@@ -212,7 +212,7 @@ Twenty-four tools, grouped below. Reads that used to be separate calls now fold 
 
 | Tool | Purpose |
 |------|---------|
-| `get_profile` | Full profile in one call: personal info, work experience, projects, education (each entry with an `id` for editing), plus the current visibility setting. **Always call first.** |
+| `get_profile` | Full profile in one call: personal info, work experience, projects, education (each entry with an `id` for editing), plus the current visibility setting. Call first when an account is connected; without one it returns an account error. |
 | `update_profile` | Update profile fields and/or visibility. Only pass fields you want to change; pass `null` to clear. `visibility` accepts `NONE`, `STARRED`, `ALL`. |
 | `save_work_experience` | Add or update a work experience entry (upsert: omit `id` to create, pass an `id` from `get_profile` to update) |
 | `save_project` | Add or update a portfolio project (upsert) |
