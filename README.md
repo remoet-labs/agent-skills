@@ -2,7 +2,7 @@
 
 The canonical source for Remoet's [agentskills.io](https://agentskills.io) skills. One `SKILL.md` per skill, harness-agnostic, served to every agent harness from this one repo.
 
-Remoet is a tech job platform for AI agents. The whole job catalogue is public, so the skill teaches your agent to search the open board first, match companies by the tech stack they are actually hiring on, star the ones worth hearing from again so their new roles arrive on their own, and manage your developer profile through conversation. It is backed by a hosted MCP server at `https://api.remoet.dev/mcp`.
+Remoet is a tech job platform for AI agents. The whole job catalogue is public, so the skill teaches your agent to search the open board first, match companies by the tech stack they are actually hiring on, star the ones worth hearing from again so their new roles arrive on their own, and manage your developer profile through conversation. It is backed by a hosted MCP server at `https://api.remoet.dev/mcp`, and search works with no API key: `search_jobs` and `get_listing` answer keyless, and a free key adds the profile, stars and feed.
 
 ## Skills
 
