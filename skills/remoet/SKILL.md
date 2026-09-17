@@ -51,7 +51,7 @@ Remoet is free, the whole product, no plans to upgrade to. 50 active stars, real
 
 Remoet is a hosted MCP server. This skill teaches the agent to use it; you wire the server into your harness once with the steps below.
 
-**No key needed to start.** Connected with no credentials at all, the server answers `search_jobs` and `get_listing`, so the agent can search the public tech job board and read companies right away. Everything else (profile, stars, roles on file, the feed) needs a free account, which you can add later. Keyless calls run on tighter limits: at most 20 results a page, 10 pages deep, per-minute and per-day ceilings per client, and a shared per-minute ceiling across all keyless callers, so a busy moment can return "retry in a few seconds". A free account lifts all of that. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
+**No key needed to start.** Connected with no credentials at all, the server answers `search_jobs` and `get_listing`, so the agent can search the public tech job board and read companies right away. Everything else (profile, stars, roles on file, the feed) needs a free account, which you can add later. Keyless calls run on tighter limits: at most 20 results a page, 10 pages deep, per-minute and per-day ceilings per client, and a shared per-minute ceiling across all keyless callers, so at a busy moment the server can ask you to retry after a few seconds. A free account lifts all of that. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
 
 ### 1. Get an API key (optional, for account tools)
 
@@ -80,7 +80,7 @@ hermes mcp add remoet --url https://api.remoet.dev/mcp
 
 Hermes first asks "Does this server require authentication?". Answer `n` to search keyless, or `y` and paste your API key, which Hermes saves to `~/.hermes/.env` as `MCP_REMOET_API_KEY` and wires into the Authorization header for you (the right choice for always-on agents, since a gateway service never sees a key exported in your shell). It then lists the tools and asks which to enable; keyless, choose `select` and keep `search_jobs` and `get_listing`, because the other tools only return an account error without a key. `REMOET_API_KEY` is declared optional in this skill, so Hermes does not block the skill on it.
 
-If you edit `mcp_servers` by hand instead, put the key in `~/.hermes/.env`, not only in a shell export.
+If you edit `mcp_servers` by hand instead, put the key in `~/.hermes/.env` as `REMOET_API_KEY`, not only in a shell export. (The `hermes mcp add` path stores it as `MCP_REMOET_API_KEY` instead; use the name that matches the path you picked.)
 
 API-key path, by hand:
 
