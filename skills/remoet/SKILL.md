@@ -1,13 +1,14 @@
 ---
 name: remoet
 description: Job search and career discovery through your agent. Search the open tech job board directly, or star the companies that match your stack for an ongoing feed of their roles, all by talking. Backed by company-level tech stack data derived from the roles each company is hiring for now.
-version: 1.4.1
+version: 1.5.0
 author: Remoet
 license: MIT-0
 platforms: [macos, linux, windows]
 required_environment_variables:
   - name: REMOET_API_KEY
-    prompt: "Paste your Remoet API key (free, auto-generated at https://remoet.dev/onboarding?mode=agent&utm_source=hermes)"
+    optional: true
+    prompt: "Optional. Job search works without a key. Paste a free Remoet API key to also use your profile, stars and feed (auto-generated at https://remoet.dev/onboarding?mode=agent&utm_source=hermes)"
 metadata:
   tags: [Job-Search, Career, Tech-Jobs, Jobs, Productivity]
   hermes:
@@ -19,11 +20,8 @@ metadata:
     primaryEnv: REMOET_API_KEY
     envVars:
       - name: REMOET_API_KEY
-        required: true
-        description: Get yours at https://remoet.dev/onboarding?mode=agent&utm_source=clawhub (auto-generated on first visit). Remoet is free, no credit card needed.
-    requires:
-      env:
-        - REMOET_API_KEY
+        required: false
+        description: Optional. search_jobs and get_listing work without it. Add a free key to use the profile, stars, roles on file and the feed. Get one at https://remoet.dev/onboarding?mode=agent&utm_source=clawhub (auto-generated on first visit), no credit card needed.
 ---
 
 # Remoet
@@ -51,9 +49,11 @@ Remoet is free, the whole product, no plans to upgrade to. 50 active stars, real
 
 ## Setup
 
-Remoet is a hosted MCP server. This skill teaches the agent to use it; you wire the server into your harness once with the steps below. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
+Remoet is a hosted MCP server. This skill teaches the agent to use it; you wire the server into your harness once with the steps below.
 
-### 1. Get an API key (all harnesses)
+**No key needed to start.** Connected with no credentials at all, the server answers `search_jobs` and `get_listing`, so the agent can search the public tech job board and read companies right away. Everything else (profile, stars, roles on file, the feed) needs a free account, which you can add later. Keyless calls run on tighter limits: at most 20 results a page, 10 pages deep, plus per-minute and per-day ceilings per client. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
+
+### 1. Get an API key (optional, for account tools)
 
 Sign in or sign up at [remoet.dev/onboarding?mode=agent&utm_source=hermes](https://remoet.dev/onboarding?mode=agent&utm_source=hermes) (the agent door of the onboarding flow). A free API key is generated automatically and shown in the manual setup section of that page. Copy it; keys look like a 32-character hex string. You can manage keys later at [remoet.dev/agents](https://remoet.dev/agents). No credit card needed.
 
@@ -72,7 +72,15 @@ Two transport URLs exist. They are not interchangeable:
 
 #### Hermes Agent
 
-Add Remoet to your Hermes config under `mcp_servers`. Hermes also prompts for `REMOET_API_KEY` on skill load (declared in this skill's frontmatter).
+Keyless, the fastest way to try it:
+
+```bash
+hermes mcp add remoet --url https://api.remoet.dev/mcp
+```
+
+Hermes connects, lists the tools and asks which to enable. Without a key, only `search_jobs` and `get_listing` will answer. `REMOET_API_KEY` is declared optional, so Hermes does not block the skill on it.
+
+To add your account, use one of the paths below under `mcp_servers` in your Hermes config.
 
 API-key path (recommended for always-on agents):
 
@@ -110,7 +118,14 @@ hermes chat --toolsets skills -q "Use the remoet skill: call get_profile and tel
 
 #### OpenClaw
 
-Add the Remoet MCP server to OpenClaw's config (typical path `~/.openclaw/config.json`):
+Keyless, to try search first:
+
+```bash
+openclaw mcp set remoet '{"url":"https://api.remoet.dev/mcp","transport":"streamable-http"}'
+openclaw mcp list
+```
+
+With an API key, add the Remoet MCP server to OpenClaw's config (typical path `~/.openclaw/config.json`):
 
 ```json
 {
@@ -137,13 +152,13 @@ openclaw mcp list
 
 #### Other harnesses (Claude Code, Cursor, Windsurf, VS Code)
 
-Any MCP-capable client works. Point it at `https://api.remoet.dev/mcp` with an `Authorization: Bearer ${REMOET_API_KEY}` header, or at `https://api.remoet.dev/mcp/oauth` to use the OAuth flow. A successful `get_profile` call (even an empty profile) means the server is connected.
+Any MCP-capable client works. Point it at `https://api.remoet.dev/mcp` with no header to search keyless, add an `Authorization: Bearer ${REMOET_API_KEY}` header for the account tools, or use `https://api.remoet.dev/mcp/oauth` for the OAuth flow. A successful `search_jobs` call means the server is connected; a successful `get_profile` (even an empty profile) means the account is too.
 
 ## Key Concepts
 
 The platform has its own opinions. They matter, because they change how the agent should use it.
 
-**Profile.** The user's developer identity on the platform. Name, summary, work history, projects, education, links. The agent populates and maintains this through conversation. Always call `get_profile` first when starting a new session.
+**Profile.** The user's developer identity on the platform. Name, summary, work history, projects, education, links. The agent populates and maintains this through conversation. When an account is connected, call `get_profile` first in a new session. Without one, `get_profile` returns an error saying it needs an account; start from `search_jobs` instead.
 
 **Stars.** A user starring a company means they would seriously consider working there. Stars are the platform's noise filter. The agent should only suggest starring companies whose tech stack actually overlaps with the user's profile skills. Starring is free of budget cost, capped at 50 active stars, the same limit for every account. Unstarring consumes a budget slot (25 per 30 days) to prevent unlimited cycling. A star does not unlock jobs, the catalogue is already public. What a star buys is delivery: that company's roles start landing in the user's own feed, and its full tech stack detail unlocks (`get_listing` and `search_listings` show a capped preview otherwise).
 
@@ -307,6 +322,7 @@ Starring is **free** of budget cost. Unstarring consumes one budget slot, 25 per
 
 ## Tips for the Agent
 
+- **No key connected? Stay on the two keyless tools.** `search_jobs` and `get_listing` work without an account. Any other tool returns an error naming how to connect one; relay that to the user once, plainly, and keep helping with search rather than retrying.
 - **Lead with `search_jobs` for a new or zero-star user.** It answers "what is open" immediately, no stars, no setup. Do not make the user star companies first just to see whether any jobs exist.
 - **First-session onboarding from a CV.** Have the user paste or upload a CV, then run `update_profile`, `save_work_experience`, `save_project`, `save_education` to populate everything in one conversation.
 - **Be selective with stars.** Suggesting "star these 50 companies" defeats the purpose. The user should end up with 5 to 30 stars they would seriously work for. Quality over quantity.
