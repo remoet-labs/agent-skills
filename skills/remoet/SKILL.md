@@ -1,7 +1,7 @@
 ---
 name: remoet
 description: Job search and career discovery through your agent. Search the open tech job board directly, or star the companies that match your stack for an ongoing feed of their roles, all by talking. Backed by company-level tech stack data derived from the roles each company is hiring for now.
-version: 1.5.0
+version: 1.5.1
 author: Remoet
 license: MIT-0
 platforms: [macos, linux, windows]
@@ -21,7 +21,7 @@ metadata:
     envVars:
       - name: REMOET_API_KEY
         required: false
-        description: Optional. search_jobs and get_listing work without it. Add a free key to use the profile, stars, roles on file and the feed. Get one at https://remoet.dev/onboarding?mode=agent&utm_source=clawhub (auto-generated on first visit), no credit card needed.
+        description: Optional. search_jobs, search_listings and get_listing work without it. Add a free key to use the profile, stars, roles on file and the feed. Get one at https://remoet.dev/onboarding?mode=agent&utm_source=clawhub (auto-generated on first visit), no credit card needed.
 ---
 
 # Remoet
@@ -51,7 +51,7 @@ Remoet is free, the whole product, no plans to upgrade to. 50 active stars, real
 
 Remoet is a hosted MCP server. This skill teaches the agent to use it; you wire the server into your harness once with the steps below.
 
-**No key needed to start.** Connected with no credentials at all, the server answers `search_jobs` and `get_listing`, so the agent can search the public tech job board and read companies right away. Everything else (profile, stars, roles on file, the feed) needs a free account, which you can add later. Keyless calls run on tighter limits: at most 20 results a page, 10 pages deep, per-minute and per-day ceilings per client, and a shared per-minute ceiling across all keyless callers, so at a busy moment the server can ask you to retry after a few seconds. A free account lifts all of that. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
+**No key needed to start.** Connected with no credentials at all, the server answers `search_jobs`, `search_listings` and `get_listing`, so the agent can search the public tech job board, find companies by stack and read companies right away. Everything else (profile, stars, roles on file, the feed) needs a free account, which you can add later. Keyless calls run on tighter limits: at most 20 results a page, 10 pages deep, per-minute and per-day ceilings per client, and a shared per-minute ceiling across all keyless callers, so at a busy moment the server can ask you to retry after a few seconds. A free account lifts all of that. The skill is harness-agnostic (it follows the agentskills.io standard), so pick the section that matches the agent you are running.
 
 ### 1. Get an API key (optional, for account tools)
 
@@ -65,7 +65,7 @@ export REMOET_API_KEY=<paste_your_key_here>
 
 ### 2. Wire up the MCP server
 
-Two transport URLs exist. Both answer `search_jobs` and `get_listing` with no credential; they differ in how the account tools authenticate:
+Two transport URLs exist. Both answer `search_jobs`, `search_listings` and `get_listing` with no credential; they differ in how the account tools authenticate:
 
 - `https://api.remoet.dev/mcp` takes an optional Bearer API key header and never triggers OAuth. Without a key, account tools return an error message rather than a challenge. Best for headless / always-on agents.
 - `https://api.remoet.dev/mcp/oauth` returns a 401 OAuth challenge only when an account tool is called without credentials. The harness negotiates discovery, dynamic client registration, PKCE, and refresh.
@@ -78,7 +78,7 @@ One command covers both the keyless and the API-key path:
 hermes mcp add remoet --url https://api.remoet.dev/mcp
 ```
 
-Hermes first asks "Does this server require authentication?". Answer `n` to search keyless, or `y` and paste your API key, which Hermes saves to `~/.hermes/.env` as `MCP_REMOET_API_KEY` and wires into the Authorization header for you (the right choice for always-on agents, since a gateway service never sees a key exported in your shell). It then lists the tools and asks which to enable; keyless, choose `select` and keep `search_jobs` and `get_listing`, because the other tools only return an account error without a key. `REMOET_API_KEY` is declared optional in this skill, so Hermes does not block the skill on it.
+Hermes first asks "Does this server require authentication?". Answer `n` to search keyless, or `y` and paste your API key, which Hermes saves to `~/.hermes/.env` as `MCP_REMOET_API_KEY` and wires into the Authorization header for you (the right choice for always-on agents, since a gateway service never sees a key exported in your shell). It then lists the tools and asks which to enable; keyless, choose `select` and keep `search_jobs`, `search_listings` and `get_listing`, because the other tools only return an account error without a key. `REMOET_API_KEY` is declared optional in this skill, so Hermes does not block the skill on it.
 
 If you edit `mcp_servers` by hand instead, put the key in `~/.hermes/.env` as `REMOET_API_KEY`, not only in a shell export. (The `hermes mcp add` path stores it as `MCP_REMOET_API_KEY` instead; use the name that matches the path you picked.)
 
@@ -322,7 +322,7 @@ Starring is **free** of budget cost. Unstarring consumes one budget slot, 25 per
 
 ## Tips for the Agent
 
-- **No key connected? Stay on the two keyless tools.** `search_jobs` and `get_listing` work without an account. Any other tool returns an error naming how to connect one; relay that to the user once, plainly, and keep helping with search rather than retrying.
+- **No key connected? Stay on the three keyless tools.** `search_jobs`, `search_listings` (without `starred: true`) and `get_listing` work without an account. Any other tool returns an error naming how to connect one; relay that to the user once, plainly, and keep helping with search rather than retrying.
 - **Lead with `search_jobs` for a new or zero-star user.** It answers "what is open" immediately, no stars, no setup. Do not make the user star companies first just to see whether any jobs exist.
 - **First-session onboarding from a CV.** Have the user paste or upload a CV, then run `update_profile`, `save_work_experience`, `save_project`, `save_education` to populate everything in one conversation.
 - **Be selective with stars.** Suggesting "star these 50 companies" defeats the purpose. The user should end up with 5 to 30 stars they would seriously work for. Quality over quantity.
