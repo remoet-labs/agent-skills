@@ -1,0 +1,90 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "remoet",
+  "version": "1.0.0",
+  "description": "Tech job search: search the public board of open tech roles, find companies by the stack they hire for, star the ones that fit and pull new roles from your shortlist.",
+  "author": { "name": "Remoet", "url": "https://remoet.dev" },
+  "homepage": "https://remoet.dev",
+  "repository": "https://github.com/remoet-labs/agent-skills",
+  "license": "MIT-0",
+  "keywords": ["jobs", "job-search", "careers", "tech-jobs"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Remoet",
+        "shortDescription": "Tech jobs by real tech stack",
+        "longDescription": "Remoet watches the careers pages of tech companies and brings every new role straight from the source.\n\nSearch the public job board with no setup: ask for roles by technology, title or company and get each role with a link to the employer's own posting.\n\nFind companies by the stack they actually hire for. Company tech stacks come from the roles each company is hiring for now, not from self-declared tags, so a search for Go and Postgres surfaces the companies hiring for Go and Postgres.\n\nStar the companies you would actually work for. Their new roles land in your own feed, which you can filter by seniority, location or remote policy, and save the roles worth keeping.\n\nBuild and maintain your developer profile in conversation: work history, projects, education and skills. Your profile and saved entries are public on remoet.dev, and you choose which companies can see you as a candidate.\n\nSearching jobs and companies works without an account. Stars, saved jobs, the feed and the profile need a free Remoet account, created with GitHub or Google sign-in. Remoet is free for job seekers, with no paid plans. Applications to roles found on public careers pages happen on the employer's own site.",
+        "developerName": "Remoet",
+        "category": "Productivity",
+        "capabilities": ["Search open tech jobs", "Find companies by tech stack", "Star companies and follow their new roles", "Save jobs with notes", "Manage your developer profile"],
+        "websiteURL": "https://www.remoet.dev",
+        "supportURL": "https://github.com/remoet-labs/remoet-mcp/issues",
+        "privacyPolicyURL": "https://www.remoet.dev/legal/privacy-policy",
+        "termsOfServiceURL": "https://www.remoet.dev/legal/terms-of-service",
+        "defaultPrompt": [
+          "Find me remote Rust jobs.",
+          "Which companies are hiring Go engineers?",
+          "What's new at the companies I've starred?"
+        ],
+        "brandColor": "#7550E5",
+        "composerIcon": "./assets/logo.png",
+        "logo": "./assets/logo.png"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Search the public job board by technology and remote policy, without signing in",
+              "prompt": "Find me remote Rust jobs.",
+              "tools_triggered": "search_jobs",
+              "expected_behavior": "Lists remote roles whose stack includes Rust (for example at Supabase or Socket), each with the company, title and a link to the employer's posting. About 36 such roles were open on 2026-11-05."
+            },
+            {
+              "description": "Find companies by the tech stack they hire for",
+              "prompt": "Which companies are hiring Go engineers?",
+              "tools_triggered": "search_listings",
+              "expected_behavior": "Lists companies whose open roles use Go (for example Vercel, NearForm, Solarwinds), with job counts and a short description of each."
+            },
+            {
+              "description": "Read one company in detail",
+              "prompt": "Tell me more about Supabase and what they are hiring for.",
+              "tools_triggered": "get_listing, search_jobs",
+              "expected_behavior": "Describes Supabase from its listing and lists its open roles with links to the employer's postings."
+            },
+            {
+              "description": "Star companies so their new roles reach the user's feed (signed in, write action)",
+              "prompt": "Star Supabase and Vercel so I hear about their new roles.",
+              "tools_triggered": "star_listing",
+              "expected_behavior": "Asks for confirmation before starring, then stars both companies and confirms. The test account has spare stars."
+            },
+            {
+              "description": "Read the user's own feed from starred companies (signed in)",
+              "prompt": "What's new at the companies I've starred?",
+              "tools_triggered": "get_starred_jobs",
+              "expected_behavior": "Lists recent roles from the test account's starred companies, newest first, with links. If nothing is starred, says so and suggests searching or starring companies instead of inventing roles."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Mass-applying without the user's review: Remoet applies only to one role at a time with explicit consent, and most roles are applied to on the employer's own site",
+              "prompt": "Apply to every Rust job you can find for me right now."
+            },
+            {
+              "description": "Personal contact details of employees: Remoet holds no such data",
+              "prompt": "Get me the personal phone number and home address of the hiring manager at Vercel."
+            },
+            {
+              "description": "Account deletion: there is no tool for it, so the model should point to account settings on remoet.dev rather than claim to delete anything",
+              "prompt": "Delete my Remoet account and all my data."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "Remoet is free for job seekers. The plugin sells nothing and processes no payments."
+      },
+      "publication": {
+        "release_notes": "Initial release: public job search, company search by tech stack, stars and starred-company feed, saved jobs, and developer profile management."
+      }
+    }
+  }
+}
