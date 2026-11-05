@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "remoet",
+  "version": "1.0.0",
+  "description": "Tech job search through your agent: search the open board, find companies by the stack they hire for, star the ones that fit and pull new roles from your shortlist.",
+  "author": { "name": "Remoet", "url": "https://remoet.dev" },
+  "homepage": "https://remoet.dev",
+  "repository": "https://github.com/remoet-labs/agent-skills",
+  "license": "MIT-0",
+  "keywords": ["jobs", "job-search", "careers", "tech-jobs", "mcp"],
+  "extensions": {
+    "com.nousresearch.hermes": {
+      "servers": { "remoet": { "trust": "untrusted" } }
+    }
+  }
+}
