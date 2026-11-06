@@ -23,6 +23,10 @@ hermes skills install remoet-labs/agent-skills/skills/remoet
 
 To get the tools as a Hermes plugin instead (one remote MCP server, OAuth sign-in, no key), see [`hermes-plugin/`](hermes-plugin/).
 
+### Cursor
+
+This repo is also a Cursor plugin marketplace (`.cursor-plugin/marketplace.json`). The plugin in [`cursor-plugin/`](cursor-plugin/) adds the Remoet MCP server with OAuth sign-in and no key to paste.
+
 ### OpenClaw
 
 The same skill is published to ClawHub:
