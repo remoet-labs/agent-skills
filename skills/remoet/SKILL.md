@@ -152,7 +152,7 @@ The same thing in OpenClaw's config file (typical path `~/.openclaw/config.json`
 
 #### Other harnesses (Claude Code, Cursor, Windsurf, VS Code)
 
-Any MCP-capable client works. Point it at `https://api.remoet.dev/mcp` with no header to search keyless, add an `Authorization: Bearer ${REMOET_API_KEY}` header for the account tools, or use `https://api.remoet.dev/mcp/oauth` for the OAuth flow. A successful `search_jobs` call means the server is connected; a successful `get_profile` (even an empty profile) means the account is too.
+Any MCP-capable client works. Point it at `https://api.remoet.dev/mcp` with no header to search keyless, add an `Authorization: Bearer ${REMOET_API_KEY}` header for the account tools, or use `https://api.remoet.dev/mcp/oauth` for the OAuth flow. In Cursor, use `https://api.remoet.dev/mcp/oauth/strict` for OAuth instead (or the Remoet Cursor plugin): Cursor only offers sign-in when the connection itself is refused, and the strict URL refuses it until you sign in, so search needs the account there too. A successful `search_jobs` call means the server is connected; a successful `get_profile` (even an empty profile) means the account is too.
 
 ## Key Concepts
 

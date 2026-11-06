@@ -10,8 +10,7 @@
   "plugins": [
     {
       "name": "remoet",
-      "source": "./cursor-plugin",
-      "description": "Search open tech jobs, find companies by the stack they hire for, star the ones that fit and pull new roles from your shortlist."
+      "source": "./cursor-plugin"
     }
   ]
 }
