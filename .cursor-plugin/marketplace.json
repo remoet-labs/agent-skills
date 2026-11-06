@@ -1,0 +1,16 @@
+{
+  "name": "remoet",
+  "owner": {
+    "name": "Remoet"
+  },
+  "metadata": {
+    "description": "Remoet's Cursor plugin: tech job search through your agent.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "remoet",
+      "source": "./cursor-plugin"
+    }
+  ]
+}

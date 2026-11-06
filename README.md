@@ -23,6 +23,10 @@ hermes skills install remoet-labs/agent-skills/skills/remoet
 
 To get the tools as a Hermes plugin instead (one remote MCP server, OAuth sign-in, no key), see [`hermes-plugin/`](hermes-plugin/).
 
+### Cursor
+
+This repo is also a Cursor plugin marketplace (`.cursor-plugin/marketplace.json`). The plugin in [`cursor-plugin/`](cursor-plugin/) adds the Remoet MCP server with OAuth sign-in and no key to paste. Install it from the Cursor marketplace once the listing is approved.
+
 ### OpenClaw
 
 The same skill is published to ClawHub:
@@ -33,7 +37,7 @@ openclaw skills install @remoet/remoet
 
 ### Other MCP-capable harnesses
 
-Claude Code, Cursor, Windsurf, and VS Code can use the skill directly. Drop `skills/remoet/SKILL.md` into your skills directory and point your client at the Remoet MCP server. Setup details are inside the skill.
+Claude Code, Windsurf, and VS Code can use the skill directly (for Cursor, use the plugin above). Drop `skills/remoet/SKILL.md` into your skills directory and point your client at the Remoet MCP server. Setup details are inside the skill.
 
 ## How one file serves every harness
 

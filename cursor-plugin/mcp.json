@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "remoet": {
+      "url": "https://api.remoet.dev/mcp/oauth/strict"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "remoet",
+  "displayName": "Remoet",
+  "version": "1.0.0",
+  "description": "Tech job search through your agent: search the open board, find companies by the stack they hire for, star the ones that fit and pull new roles from your shortlist.",
+  "author": {
+    "name": "Remoet"
+  },
+  "homepage": "https://remoet.dev",
+  "repository": "https://github.com/remoet-labs/agent-skills",
+  "license": "MIT-0",
+  "keywords": ["jobs", "job-search", "careers", "tech-jobs", "mcp"],
+  "logo": "assets/logo.png"
+}
