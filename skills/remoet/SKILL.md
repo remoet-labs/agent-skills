@@ -313,7 +313,7 @@ Be honest with the user about these so they do not hit a wall.
 - **External job applications happen on the company's site.** Most jobs on the platform are scraped from external career pages. The agent finds the job and hands you the application link, you apply on the company site like always. Internal applications (end-to-end through Remoet) only work on the small slice of jobs from companies posting directly via the partner system.
 - **No GitHub integration.** The user's tech stack is what is in their Remoet profile, not what is actually in their repos. If the profile is empty, tech-stack matching has nothing to match against. Suggest populating the profile first.
 - **No cover-letter writing tool yet.** The plumbing is partially built, but it is not exposed via MCP.
-- **`search_jobs` covers cleared sources only.** Roles that Remoet is not permitted to publish never appear, so it is not every board on the internet. A company posting somewhere Remoet has not cleared will not show up.
+- **`search_jobs` covers cleared sources only.** Roles that Remoet is not permitted to publish never appear here, so it is not every board on the internet. A company posting somewhere Remoet has not cleared will not show up.
 - **`get_feed` and `get_starred_jobs` are the shortlist, not the catalogue.** Both start empty for a zero-star account. That is not a wall the user needs to star their way past, it is what `search_jobs` is for: it reads the whole public catalogue with no star required, so a new user can get real answers on day one. Stars are for ongoing delivery of a specific company's roles into the feed, not for unlocking jobs that are already public.
 
 ## Star Budget
