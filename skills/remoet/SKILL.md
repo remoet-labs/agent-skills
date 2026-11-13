@@ -1,7 +1,7 @@
 ---
 name: remoet
 description: Job search and career discovery through your agent. Search the open tech job board directly, or star the companies that match your stack for an ongoing feed of their roles, all by talking. Backed by company-level tech stack data derived from the roles each company is hiring for now.
-version: 1.5.2
+version: 1.5.3
 author: Remoet
 license: MIT-0
 platforms: [macos, linux, windows]
@@ -43,7 +43,7 @@ Use this skill when the user wants to:
 - Apply to jobs and save the good ones with notes on file for later
 - Also: a personal feed of what landed at starred companies (plus one job-of-the-day pick), a shareable developer link tree, internal applications for partner companies
 
-Skip this if the user wants every job board on the internet. Remoet's catalogue covers roles scraped from cleared ATS platforms (Lever, Greenhouse, Ashby, Recruitee, Workable, BambooHR), not the whole internet.
+Skip this if the user wants every job board on the internet. Remoet's catalogue covers only the job boards Remoet is cleared to publish, not the whole internet.
 
 Remoet is free, the whole product, no plans to upgrade to. 50 active stars, real-time job data, and with an account, request limits generous enough that you will not notice them. Plenty for picking your shortlist and getting a feel.
 
@@ -228,7 +228,7 @@ Twenty-four tools, grouped below. Reads that used to be separate calls now fold 
 
 ### Public jobs
 
-The open catalogue, no star required. Covers roles scraped from cleared ATS platforms (Lever, Greenhouse, Ashby, Recruitee, Workable, BambooHR), not every job board on the internet.
+The open catalogue, no star required. Covers only the roles Remoet is cleared to publish, not every job board on the internet.
 
 | Tool | Purpose |
 |------|---------|
@@ -313,7 +313,7 @@ Be honest with the user about these so they do not hit a wall.
 - **External job applications happen on the company's site.** Most jobs on the platform are scraped from external career pages. The agent finds the job and hands you the application link, you apply on the company site like always. Internal applications (end-to-end through Remoet) only work on the small slice of jobs from companies posting directly via the partner system.
 - **No GitHub integration.** The user's tech stack is what is in their Remoet profile, not what is actually in their repos. If the profile is empty, tech-stack matching has nothing to match against. Suggest populating the profile first.
 - **No cover-letter writing tool yet.** The plumbing is partially built, but it is not exposed via MCP.
-- **`search_jobs` covers cleared ATS platforms only.** The public catalogue is scraped from Lever, Greenhouse, Ashby, Recruitee, Workable and BambooHR job boards, not every board on the internet. A company posting somewhere else will not show up.
+- **`search_jobs` covers cleared sources only.** Roles that Remoet is not permitted to publish never appear here, so it is not every board on the internet. A company posting somewhere Remoet has not cleared will not show up.
 - **`get_feed` and `get_starred_jobs` are the shortlist, not the catalogue.** Both start empty for a zero-star account. That is not a wall the user needs to star their way past, it is what `search_jobs` is for: it reads the whole public catalogue with no star required, so a new user can get real answers on day one. Stars are for ongoing delivery of a specific company's roles into the feed, not for unlocking jobs that are already public.
 
 ## Star Budget
